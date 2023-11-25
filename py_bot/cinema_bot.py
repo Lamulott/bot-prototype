@@ -9,9 +9,9 @@ URL = 'https://www.baskino.re/novinki-v2/'
 def parser(url) -> list[str]:
     r = requests.get(URL)
     soup = b(r.text, 'html.parser')
-    films = soup.find('div', class_ ='shortpost')
+    films = soup.find('div', class_='shortpost')
     total_list = []
-    for films in soup.find_all('div', class_ ='shortpost'):
+    for films in soup.find_all('div', class_='shortpost'):
         link = films.div.a['href']
         name = films.div.a.img['title']
         total_list.append(f'{name} {link}')
@@ -41,21 +41,29 @@ def start(message):
 @bot.callback_query_handler(func=lambda call:True)
 def answer(call):
     if call.data == 'yes':
-        ...
+        bot.send_message(call.from_user.id, 'Отлично! Поехали!')
+        bot.send_message(call.from_user.id, films_for_today[0])
+        random.shuffle(films_for_today)
+
+        markup_reply = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        i_next = types.KeyboardButton('Другой')
+        i_exit = types.KeyboardButton("Выход")
+        markup_reply.add(i_next, i_exit)
+        bot.send_message(call.message.chat.id, 'Посмотреть что-нибудь другое?', reply_markup=markup_reply)
     elif call.data == 'no':
-        ...
+        n = random.choice(num)
+        bot.send_message(call.from_user.id, parting[n])
     elif call.data == 'info':
-        bot.send_message(call.from_user.id, 'это справочная информация')
+        bot.send_message(call.from_user.id, 'Для того, чтобы начать поиск, нажмите "Дa". Для выхода нажмите "Нет" или "Выход". Для выбора другого фильма нажмите кнопку "другой". Так же для продолжения поиска Вы можете набрать в чате "Начать". Приятного поиска!')
 
 
 @bot.message_handler(content_types=['text'])
 def get_text_message(message):
     if message.text.lower() == 'да':
-        bot.send_message(message.from_user.id, 'Отлично! Поехали!')
         bot.send_message(message.from_user.id, "Вот что можно посмотреть сегодня:")
         bot.send_message(message.from_user.id, films_for_today[0])
 
-    elif message.text.lower() == 'другой':
+    elif message.text.lower() == 'другой' or message.text.lower() == 'начать':
         bot.send_message(message.from_user.id, films_for_today[0])
         del films_for_today[0]
 
@@ -63,7 +71,7 @@ def get_text_message(message):
         n = random.choice(num)
         bot.send_message(message.from_user.id, parting[n])
     elif message.text == '/help':
-        bot.send_message(message.from_user.id, 'Если Вы хотите продолжить поиск, наберите  "Дa". Для выхода введите "Нет". Если Вы хотите выбрать другой фильм, напишите "другой"')
+        bot.send_message(message.from_user.id, 'Для того, чтобы начать поиск, нажмите "Дa". Для выхода нажмите "Нет" или "Выход". Для выбора другого фильма нажмите кнопку "другой". Так же для продолжения поиска Вы можете набрать в чате "Начать". Приятного поиска!')
     else:
         bot.send_message(message.from_user.id, 'Я тебя не понимаю, набери /help.')
 
