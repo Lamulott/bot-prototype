@@ -59,13 +59,17 @@ def answer(call):
         i_next = types.KeyboardButton('Другой')
         i_exit = types.KeyboardButton("Выход")
         markup_reply.add(i_next, i_exit)
-        bot.send_message(call.message.chat.id, 'Посмотреть что-нибудь другое?', reply_markup=markup_reply)
+        bot.send_message(call.message.chat.id, 'Посмотреть другой?', reply_markup=markup_reply)
     elif call.data == 'no':
         n = random.choice(num)
         bot.send_message(call.from_user.id, parting[n])
     elif call.data == 'info':
         bot.send_message(call.from_user.id,
-                         'Для того, чтобы начать поиск, нажмите "Дa". Для выхода нажмите "Нет" или "Выход". Для выбора другого фильма нажмите кнопку "другой". Так же для продолжения поиска Вы можете набрать в чате "Начать". Приятного поиска!')
+                         'Для того, чтобы начать поиск, наберите /start. Для выхода нажмите на кнопку "Выход". Для продолжения поиска напишите в чате "Продолжить". ')
+        bot.send_message(call.from_user.id, 'Если хотите поменять фильм нажмите "Другой".')
+        photo0 = open('robo3.jpg', 'rb')
+        bot.send_photo(call.from_user.id, photo0)
+        bot.send_message(call.from_user.id, "Приятного поиска!")
 
 
 @bot.message_handler(content_types=['text'])
@@ -84,7 +88,11 @@ def get_text_message(message):
         bot.send_message(message.from_user.id, parting[n])
     elif message.text == '/help':
         bot.send_message(message.from_user.id,
-                         'Для того, чтобы начать поиск, наберите /start. Для выхода нажмите на кнопку "Выход"; для выбора другого фильма - "Другой". Так же для продолжения поиска Вы можете набрать в чате "Продолжить". Приятного поиска!')
+                         'Для того, чтобы начать поиск, наберите /start. Для выхода нажмите на кнопку "Выход". Для продолжения поиска напишите в чате "Продолжить". ')
+        bot.send_message(message.from_user.id, 'Если хотите поменять фильм нажмите "Другой".')
+        photo1 = open('robo2.jpg', 'rb')
+        bot.send_photo(message.chat.id, photo1)
+        bot.send_message(message.from_user.id, "Приятного поиска!")
     else:
         bot.send_message(message.from_user.id, 'Я тебя не понимаю, набери /help.')
 
