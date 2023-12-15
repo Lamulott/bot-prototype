@@ -1,29 +1,16 @@
 import telebot
 from telebot import types
-import requests
-from bs4 import BeautifulSoup as b
 import random
+from classSite import Site
+from csvReader import get_notes
 
-url = 'https://www.baskino.re/novinki-v2/'
+url = 'https://www.baskino.re/'
 headers = {
     'Accept': '*/*',
     'User_Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.5993.731 Mobile Safari/537.36'
 }
-
-
-def parser(url, headers) -> list[str]:
-    r = requests.get(url, headers=headers)
-    soup = b(r.text, 'html.parser')
-    films = soup.find('div', class_='shortpost')
-    total_list = []
-    for films in soup.find_all('div', class_='shortpost'):
-        link = films.div.a['href']
-        name = films.div.a.img['title']
-        total_list.append(f'{name} {link}')
-    return total_list
-
-
-films_for_today = parser(url, headers)
+s = Site(url, headers)
+films_for_today = s.get_total_list()
 random.shuffle(films_for_today)
 
 parting = ['До новых встреч!', 'До встречи!', 'Пока-пока!', 'До скорой встречи!', 'До следующей встречи!',
@@ -46,6 +33,18 @@ def start(message):
     info = types.InlineKeyboardButton(text='помощь', callback_data='info')
     markup_inline.add(yes, no, info)
     bot.send_message(message.chat.id, 'Начать поиск?', reply_markup=markup_inline)
+
+
+@bot.message_handler(commands=["список"])
+def send_dock(message):
+    dock = open('new_films.csv', 'rb')
+    bot.send_document(message.chat.id, dock)
+
+
+@bot.message_handler(commands=["Робо"])
+def send_dock(message):
+    p = open('robo.jpg', 'rb')
+    bot.send_photo(message.chat.id, p)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -99,6 +98,11 @@ def get_text_message(message):
 
 def main():
     bot.polling(none_stop=True, interval=0)
+
+
+films_info = s.get_info()
+# запись в файл в формате csv
+get_notes(films_info)
 
 if __name__ == '__main__':
     main()
